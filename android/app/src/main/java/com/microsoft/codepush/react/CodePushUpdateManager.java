@@ -11,7 +11,7 @@ import java.net.HttpURLConnection;
 import java.net.HttpsURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import javax.net.ssl.SSLSocket
+import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
