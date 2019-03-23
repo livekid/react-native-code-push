@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.HttpsURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -152,7 +153,7 @@ public class CodePushUpdateManager {
         }
 
         String downloadUrlString = updatePackage.optString(CodePushConstants.DOWNLOAD_URL_KEY, null);
-        HttpURLConnection connection = null;
+        HttpsURLConnection connection = null
         BufferedInputStream bin = null;
         FileOutputStream fos = null;
         BufferedOutputStream bout = null;
@@ -162,7 +163,18 @@ public class CodePushUpdateManager {
         // Download the file while checking if it is a zip and notifying client of progress.
         try {
             URL downloadUrl = new URL(downloadUrlString);
-            connection = (HttpURLConnection) (downloadUrl.openConnection());
+            connection = (HttpsURLConnection) (downloadUrl.openConnection());
+
+            if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                if (downloadUrl.toString().startsWith("https")) {
+                    try {
+                        connection.setSSLSocketFactory(new TLSSocketFactory());
+                    } catch (Exception e) {
+                        CodePushUtils.log(e.getMessage());
+                    }
+                }
+            }
+
             connection.setRequestProperty("Accept-Encoding", "identity");
             bin = new BufferedInputStream(connection.getInputStream());
 
@@ -367,3 +379,62 @@ public class CodePushUpdateManager {
         FileUtils.deleteDirectoryAtPath(getCodePushPath());
     }
 }
+
+// FIXME: It's temporary workaround for SSL issues on Android 4.4.2
+
+public class TLSSocketFactory extends SSLSocketFactory {
+
+    private SSLSocketFactory delegate;
+
+    public TLSSocketFactory() throws KeyManagementException, NoSuchAlgorithmException {
+        SSLContext context = SSLContext.getInstance("TLS");
+        context.init(null, null, null);
+        delegate = context.getSocketFactory();
+    }
+
+    @Override
+    public String[] getDefaultCipherSuites() {
+        return delegate.getDefaultCipherSuites();
+    }
+
+    @Override
+    public String[] getSupportedCipherSuites() {
+        return delegate.getSupportedCipherSuites();
+    }
+
+    @Override
+    public Socket createSocket() throws IOException {
+        return enableTLSOnSocket(delegate.createSocket());
+    }
+
+    @Override
+    public Socket createSocket(Socket s, String host, int port, boolean autoClose) throws IOException {
+        return enableTLSOnSocket(delegate.createSocket(s, host, port, autoClose));
+    }
+
+    @Override
+    public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
+        return enableTLSOnSocket(delegate.createSocket(host, port));
+    }
+
+    @Override
+    public Socket createSocket(String host, int port, InetAddress localHost, int localPort) throws IOException, UnknownHostException {
+        return enableTLSOnSocket(delegate.createSocket(host, port, localHost, localPort));
+    }
+
+    @Override
+    public Socket createSocket(InetAddress host, int port) throws IOException {
+        return enableTLSOnSocket(delegate.createSocket(host, port));
+    }
+
+    @Override
+    public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws IOException {
+        return enableTLSOnSocket(delegate.createSocket(address, port, localAddress, localPort));
+    }
+
+    private Socket enableTLSOnSocket(Socket socket) {
+        if(socket != null && (socket instanceof SSLSocket)) {
+            ((SSLSocket)socket).setEnabledProtocols(new String[] {"TLSv1.1", "TLSv1.2"});
+        }
+        return socket;
+    }
