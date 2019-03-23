@@ -153,7 +153,7 @@ public class CodePushUpdateManager {
         }
 
         String downloadUrlString = updatePackage.optString(CodePushConstants.DOWNLOAD_URL_KEY, null);
-        HttpsURLConnection connection = null
+        HttpsURLConnection connection = null;
         BufferedInputStream bin = null;
         FileOutputStream fos = null;
         BufferedOutputStream bout = null;
