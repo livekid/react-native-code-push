@@ -8,12 +8,17 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.HttpsURLConnection;
+import javax.net.ssl.HttpsURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLContext;
+import java.net.Socket;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import javax.net.ssl.SSLSocketFactory;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import javax.net.ssl.TrustManagerFactory;
 import java.nio.ByteBuffer;
 
@@ -386,7 +391,7 @@ public class CodePushUpdateManager {
 
 // FIXME: It's temporary workaround for SSL issues on Android 4.4.2
 
-public class TLSSocketFactory extends SSLSocketFactory {
+class TLSSocketFactory extends SSLSocketFactory {
 
     private SSLSocketFactory delegate;
 
