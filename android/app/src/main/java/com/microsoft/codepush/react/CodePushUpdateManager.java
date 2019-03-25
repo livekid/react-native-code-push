@@ -21,6 +21,8 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import javax.net.ssl.TrustManagerFactory;
 import java.nio.ByteBuffer;
+import android.os.Build.VERSION_CODES;
+
 
 public class CodePushUpdateManager {
 
