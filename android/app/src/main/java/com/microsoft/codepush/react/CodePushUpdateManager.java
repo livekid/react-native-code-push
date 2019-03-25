@@ -176,7 +176,7 @@ public class CodePushUpdateManager {
             URL downloadUrl = new URL(downloadUrlString);
             connection = (HttpsURLConnection) (downloadUrl.openConnection());
 
-            if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.LOLLIPOP) {
                 if (downloadUrl.toString().startsWith("https")) {
                     try {
                         connection.setSSLSocketFactory(new TLSSocketFactory());
